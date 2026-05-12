@@ -69,14 +69,40 @@ def discover() -> None:
     with open(PLAN_FILE, "w") as f:
         json.dump(new_contacts, f, indent=2)
 
-    # WhatsApp: today's jobs + planned outreach + LinkedIn profiles
-    print("\n5. Sending morning WhatsApp digest...")
+    # Save human-readable summary for GitHub Actions artifact / quick review
+    summary_path = "data/todays_summary.txt"
+    with open(summary_path, "w") as f:
+        f.write(f"=== Reachout Plan — {__import__('datetime').datetime.now().strftime('%Y-%m-%d')} ===\n\n")
+        f.write(f"Jobs scraped: {len(scored)} passed 4-5/5 filter\n")
+        f.write(f"Contacts ready to email: {len(new_contacts)}\n\n")
+        f.write("── TODAY'S OUTREACH TARGETS ──\n\n")
+        for c in new_contacts:
+            f.write(f"Name:     {c.get('name')}\n")
+            f.write(f"Title:    {c.get('title')} @ {c.get('company')}\n")
+            f.write(f"Email:    {c.get('email')}\n")
+            f.write(f"Score:    {c.get('alignment_score')}/5\n")
+            f.write(f"Warm:     {'Yes' if c.get('is_warm') else 'No'}\n")
+            f.write(f"Job:      {c.get('job_title_posted', '')}\n")
+            f.write(f"LinkedIn: {c.get('linkedin_url', '')}\n")
+            f.write(f"Apply:    {c.get('job_url', '')}\n")
+            f.write("\n")
+        f.write("── TODAY'S JOB OPENINGS (4-5/5) ──\n\n")
+        for j in scored:
+            f.write(f"{j.get('alignment_score')}/5 | {j.get('company')} — {j.get('job_title_posted')} | {j.get('location')}\n")
+            f.write(f"      Apply: {j.get('job_url', '')}\n")
+
+    # Log planned contacts to Notion so you can see them there too
+    print("\n5. Logging planned contacts to Notion...")
     for c in new_contacts:
         c["status"] = "planned"
+        log_contact(c)
+
+    # WhatsApp: today's jobs + planned outreach + LinkedIn profiles
+    print("\n6. Sending morning WhatsApp digest...")
     send_whatsapp_digest(todays_contacts=new_contacts, todays_jobs=scored)
 
-    print(f"\nPlan saved. When ready: run `python3.11 main.py --send`")
-    print(f"Before sending: run `/job-matching` in Claude to generate tailored PDFs in outputs/")
+    print(f"\nPlan saved → data/todays_summary.txt")
+    print(f"When ready: python3.11 main.py --send")
 
 
 # ── Phase 2: Send ─────────────────────────────────────────────────────────────

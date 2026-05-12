@@ -39,3 +39,11 @@ jobs:
           TARGET_LOCATIONS: "San Francisco,United States,Dubai"
           TARGET_FUNDING_STAGES: "Series A,Series B,Series C"
           RESULTS_PER_RUN: "50"
+
+      - name: Upload today's plan as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: todays-reachout-plan
+          path: data/todays_summary.txt
+          retention-days: 7
