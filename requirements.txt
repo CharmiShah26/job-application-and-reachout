@@ -1,6 +1,6 @@
 requests
 python-dotenv
-jobspy
+git+https://github.com/speedyapply/JobSpy.git
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
