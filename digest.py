@@ -95,7 +95,10 @@ def build_message(
 
 def send_whatsapp_digest(todays_contacts=None, todays_jobs=None) -> None:
     summary = get_status_summary()
-    updates = check_replies()
+    try:
+        updates = check_replies()
+    except Exception:
+        updates = {}  # Gmail not available in cloud discovery phase
     message = build_message(summary, updates, todays_contacts, todays_jobs)
 
     if not TWILIO_ACCOUNT_SID or not YOUR_WHATSAPP_NUMBER:
