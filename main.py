@@ -22,6 +22,7 @@ import time
 from job_scraper import build_contacts_from_jobs
 from scorer import filter_by_alignment
 from connections import load_linkedin_connections, tag_warm_cold
+from connections_outreach import scan_connections
 from outreach import get_gmail_service, send_outreach
 from notion_tracker import log_contact
 from tracker import check_replies, load_sent_log, save_sent_log
@@ -43,6 +44,11 @@ def discover() -> None:
 
     print("\n1. Scraping PM job postings + finding recruiter emails...")
     all_contacts = build_contacts_from_jobs(results_per_search=30)
+
+    print("\n1b. Scanning LinkedIn connections for warm outreach targets...")
+    warm_contacts = scan_connections()
+    all_contacts = all_contacts + warm_contacts
+    print(f"   {len(all_contacts)} total contacts combined")
 
     print("\n2. Scoring alignment (only 4-5/5 get outreach)...")
     scored = filter_by_alignment(all_contacts, min_score=4)
