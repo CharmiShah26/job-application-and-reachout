@@ -106,6 +106,10 @@ def send_whatsapp_digest(todays_contacts=None, todays_jobs=None) -> None:
         print(message)
         return
 
+    # Twilio WhatsApp limit is 1600 chars
+    if len(message) > 1550:
+        message = message[:1547] + "..."
+
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     msg = client.messages.create(
         from_=TWILIO_WHATSAPP_FROM,
