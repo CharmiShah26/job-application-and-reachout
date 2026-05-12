@@ -1,0 +1,41 @@
+name: Daily Job Discovery
+
+on:
+  schedule:
+    - cron: '0 15 * * 1-5'   # 7am SF time (PST = UTC-8), weekdays only
+  workflow_dispatch:           # lets you trigger manually from GitHub UI anytime
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create data and logs directories
+        run: mkdir -p data logs outputs
+
+      - name: Run discovery (scrape jobs → score → find contacts → WhatsApp)
+        run: python main.py --discover
+        env:
+          APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
+          HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
+          YOUR_WHATSAPP_NUMBER: ${{ secrets.YOUR_WHATSAPP_NUMBER }}
+          GMAIL_SENDER: charmishahwork26@gmail.com
+          TARGET_LOCATIONS: "San Francisco,United States,Dubai"
+          TARGET_FUNDING_STAGES: "Series A,Series B,Series C"
+          RESULTS_PER_RUN: "50"
